@@ -20,16 +20,17 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.txt GNU General Public License
  */
 
-namespace Rampage\Nexus\Ansible\MongoDB\Hydration;
+namespace Rampage\Nexus\Ansible\ODM\Hydration;
 
-use Rampage\Nexus\MongoDB\CursorInterface;
 use Rampage\Nexus\Ansible\Entities\Host;
 use Rampage\Nexus\Exception\LogicException;
+
+use Iterator, Countable;
 
 /**
  * Maps a host cursor to a node cursor
  */
-class NodeCursor implements CursorInterface
+class NodeCursor implements Iterator, Countable
 {
     /**
      * @var CursorInterface
@@ -37,9 +38,14 @@ class NodeCursor implements CursorInterface
     private $cursor;
 
     /**
+     * @var int
+     */
+    private $count = null;
+
+    /**
      * @param CursorInterface $cursor
      */
-    public function __construct(CursorInterface $cursor)
+    public function __construct(Iterator $cursor)
     {
         $this->cursor = $cursor;
     }
@@ -48,9 +54,17 @@ class NodeCursor implements CursorInterface
      * {@inheritDoc}
      * @see Countable::count()
      */
-    public function count($mode = null)
+    public function count()
     {
-        return $this->cursor->count($mode);
+        if ($this->count === null) {
+            if ($this->cursor instanceof Countable) {
+                $this->count = $this->cursor->count();
+            } else {
+                $this->count = count(iterator_to_array($this->cursor));
+            }
+        }
+
+        return $this->count;
     }
 
     /**

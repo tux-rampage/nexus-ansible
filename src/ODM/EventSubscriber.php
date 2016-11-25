@@ -40,7 +40,7 @@ class EventSubscriber implements EventSubscriberInterface
     public function getSubscribedEvents()
     {
         return [
-            Event::postLoad
+            Events::postLoad
         ];
     }
 
@@ -57,6 +57,13 @@ class EventSubscriber implements EventSubscriberInterface
         }
 
         if (!$object->getNode() && $object->getDefaultNodeType()) {
+            if ($node = $objectManager->find(Node::class, $object->getId())) {
+                $object->setNode($node);
+                $objectManager->flush($object);
+                return;
+            }
+
+            // TODO: Define ID
             $node = new Node($object->getDefaultNodeType());
             $node->setName($object->getName());
             $node->setUrl(sprintf('https://%s:20080/', $object->getName()));

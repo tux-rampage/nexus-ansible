@@ -20,14 +20,20 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.txt GNU General Public License
  */
 
-namespace Rampage\Nexus\Ansible\MongoDB;
+namespace Rampage\Nexus\Ansible\ODM;
 
-use Rampage\Nexus\Repository\NodeRepositoryInterface;
-use Rampage\Nexus\Ansible\Repository\HostRepositoryInterface;
-use Rampage\Nexus\Exception\LogicException;
 use Rampage\Nexus\Entities\Node;
 use Rampage\Nexus\Entities\DeployTarget;
 
+use Rampage\Nexus\Repository\NodeRepositoryInterface;
+use Rampage\Nexus\Ansible\Repository\HostRepositoryInterface;
+
+use Rampage\Nexus\Exception\LogicException;
+
+
+/**
+ * Decorated node repo
+ */
 class NodeRepository implements NodeRepositoryInterface
 {
     /**

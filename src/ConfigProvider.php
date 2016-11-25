@@ -23,7 +23,8 @@
 namespace Rampage\Nexus\Ansible;
 
 use Rampage\Nexus\Repository\NodeRepositoryInterface;
-use Rampage\Nexus\MongoDB\Repository\NodeRepository as DefaultNodeRepository;
+use Rampage\Nexus\ODM\Repository\NodeRepository as DefaultNodeRepository;
+use Doctrine\ODM\MongoDB\DocumentManager;
 
 /**
  * Config provider for ansible module
@@ -31,11 +32,24 @@ use Rampage\Nexus\MongoDB\Repository\NodeRepository as DefaultNodeRepository;
 class ConfigProvider
 {
     /**
+     * @var bool
+     */
+    private $useDoctrineODM = true;
+
+    /**
+     * @param bool $useDoctrineODM
+     */
+    public function __construct($useDoctrineODM = null)
+    {
+        $this->useDoctrineODM = ($useDoctrineODM !== null)? $useDoctrineODM : class_exists('Rampage\Nexus\ODM\ConfigProvider');
+    }
+
+    /**
      * Provides the configuration
      */
     public function getConfig()
     {
-        return [
+        $config = [
             'ui' => [
                 'modules' => [
                     'ansible' => 'nexus.ui.ansible'
@@ -43,27 +57,8 @@ class ConfigProvider
             ],
             'di' => [
                 'preferences' => [
-                    Repository\GroupRepositoryInterface::class => MongoDB\GroupRepository::class,
-                    Repository\HostRepositoryInterface::class => MongoDB\HostRepository::class,
-                    NodeRepositoryInterface::class => MongoDB\NodeRepository::class,
                     InventoryProviderInterface::class => InventoryProvider::class,
                 ],
-                'instances' => [
-                    MongoDB\HostRepository::class => [
-                        'preferences' => [
-                            NodeRepositoryInterface::class => DefaultNodeRepository::class,
-                        ],
-                        'parameters' => [
-                            'groupRepository' => MongoDB\GroupRepository::class,
-                        ]
-                    ],
-
-                    MongoDB\NodeRepository::class => [
-                        'preferences' => [
-                            NodeRepositoryInterface::class => DefaultNodeRepository::class,
-                        ]
-                    ]
-                ]
             ],
             'commands' => [
                 'ansible:inventory' => Command\InventoryCommand::class,
@@ -86,6 +81,28 @@ class ConfigProvider
                 ]
             ]
         ];
+
+        if ($this->useDoctrineODM) {
+            $config['di'] = array_merge_recursive($config['di'], [
+                'preferences' => [
+                    Repository\GroupRepositoryInterface::class => ODM\GroupRepository::class,
+                    Repository\HostRepositoryInterface::class => ODM\HostRepository::class,
+                    NodeRepositoryInterface::class => ODM\NodeRepository::class,
+                ],
+                'instances' => [
+                    ODM\NodeRepository::class => [
+                        'preferences' => [
+                            NodeRepositoryInterface::class => DefaultNodeRepository::class,
+                        ]
+                    ]
+                ],
+                'delegators' => [
+                    DocumentManager::class => ODM\ServiceFactory\DocumentManagerDelegator::class,
+                ]
+            ]);
+        }
+
+        return $config;
     }
 
     /**

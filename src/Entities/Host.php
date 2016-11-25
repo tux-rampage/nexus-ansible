@@ -117,7 +117,7 @@ class Host implements ArrayExchangeInterface
     }
 
     /**
-     * @return \Rampage\Nexus\Entities\AbstractNode
+     * @return \Rampage\Nexus\Entities\Node
      */
     public function getNode()
     {
@@ -130,7 +130,7 @@ class Host implements ArrayExchangeInterface
      * @param \Rampage\Nexus\Entities\AbstractNode $node
      * @return self
      */
-    public function setNode(NodeInterface $node = null)
+    public function setNode(Node $node = null)
     {
         if ($this->node) {
             throw new LogicException('This host already has a deployment node');

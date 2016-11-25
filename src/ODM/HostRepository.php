@@ -26,14 +26,9 @@ use Rampage\Nexus\Ansible\Repository\HostRepositoryInterface;
 use Rampage\Nexus\Ansible\Entities\Host;
 use Rampage\Nexus\Ansible\Entities\Group;
 
-use Rampage\Nexus\ODM\Repository\AbstractRepository;
-
-use Rampage\Nexus\Repository\DeployTargetRepositoryInterface;
-use Rampage\Nexus\Repository\NodeRepositoryInterface;
-
-use Rampage\Nexus\Deployment\NodeInterface;
-use Rampage\Nexus\Exception\LogicException;
 use Rampage\Nexus\Entities\Node;
+use Rampage\Nexus\ODM\Repository\AbstractRepository;
+use Rampage\Nexus\Exception\LogicException;
 
 
 /**
@@ -95,7 +90,21 @@ class HostRepository extends AbstractRepository implements HostRepositoryInterfa
      */
     public function remove(Host $host)
     {
-        $this->removeAndFlush($host);
+        $node = $host->getNode();
+        $flush = [$host];
+
+        if ($node && $node->getDeployTarget()) {
+            throw new LogicException('Cannot remove a host which is currently attached to a deploy target');
+        }
+
+        $this->objectManager->remove($host);
+
+        if ($node) {
+            $this->objectManager->remove($node);
+            $flush[] = $node;
+        }
+
+        $this->objectManager->flush($flush);
         return $this;
     }
 
