@@ -20,40 +20,26 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.txt GNU General Public License
  */
 
-namespace Rampage\Nexus\Ansible\Action;
+namespace Rampage\Nexus\Ansible\ServiceFactory;
 
-use Rampage\Nexus\Master\Action\AbstractRestApi;
-use Rampage\Nexus\Ansible\Entities\Host;
+use Rampage\Nexus\Ansible\Repository\NodeRepository;
 use Rampage\Nexus\Ansible\Repository\HostRepositoryInterface;
-use Rampage\Nexus\Exception\Http\BadRequestException;
+
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Factory\DelegatorFactoryInterface;
+
 
 /**
- * Implements the Host REST Resource
+ * Creates a delegated node repository
  */
-class HostAction extends AbstractRestApi
+class NodeRepositoryDelegator implements DelegatorFactoryInterface
 {
     /**
      * {@inheritDoc}
-     * @see \Rampage\Nexus\Action\AbstractRestApi::__construct()
+     * @see \Zend\ServiceManager\Factory\DelegatorFactoryInterface::__invoke()
      */
-    public function __construct(HostRepositoryInterface $repository)
+    public function __invoke(ContainerInterface $container, $name, callable $callback, array $options = null)
     {
-        parent::__construct($repository, new Host(null));
-    }
-
-    /**
-     * {@inheritDoc}
-     * @see \Rampage\Nexus\Action\AbstractRestApi::createEntity()
-     */
-    protected function createEntity(array $data)
-    {
-        if (!isset($data['id'])) {
-            throw new BadRequestException('Missing identifier', BadRequestException::UNPROCESSABLE);
-        }
-
-        $group = new Host($data['id']);
-        $group->exchangeArray($data);
-
-        return $group;
+        return new NodeRepository($callback(), $container->get(HostRepositoryInterface::class));
     }
 }

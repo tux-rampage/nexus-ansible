@@ -23,8 +23,6 @@
 namespace Rampage\Nexus\Ansible;
 
 use Rampage\Nexus\Repository\NodeRepositoryInterface;
-use Rampage\Nexus\ODM\Repository\NodeRepository as DefaultNodeRepository;
-use Doctrine\ODM\MongoDB\DocumentManager;
 
 /**
  * Config provider for ansible module
@@ -55,9 +53,13 @@ class ConfigProvider
                     'ansible' => 'nexus.ui.ansible'
                 ]
             ],
-            'di' => [
-                'preferences' => [
+            'dependencies' => [
+                'delegators' => [
+                    NodeRepositoryInterface::class => ServiceFactory\NodeRepositoryDelegator::class
+                ],
+                'aliases' => [
                     InventoryProviderInterface::class => InventoryProvider::class,
+                    LinkNodeStrategyInterface::class =>  LinkNodeStrategy::class,
                 ],
             ],
             'commands' => [
@@ -83,21 +85,10 @@ class ConfigProvider
         ];
 
         if ($this->useDoctrineODM) {
-            $config['di'] = array_merge_recursive($config['di'], [
-                'preferences' => [
+            $config['dependencies'] = array_merge_recursive($config['dependencies'], [
+                'aliases' => [
                     Repository\GroupRepositoryInterface::class => ODM\GroupRepository::class,
                     Repository\HostRepositoryInterface::class => ODM\HostRepository::class,
-                    NodeRepositoryInterface::class => ODM\NodeRepository::class,
-                ],
-                'instances' => [
-                    ODM\NodeRepository::class => [
-                        'preferences' => [
-                            NodeRepositoryInterface::class => DefaultNodeRepository::class,
-                        ]
-                    ]
-                ],
-                'delegators' => [
-                    DocumentManager::class => ODM\ServiceFactory\DocumentManagerDelegator::class,
                 ]
             ]);
         }

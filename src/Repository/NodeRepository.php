@@ -20,7 +20,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.txt GNU General Public License
  */
 
-namespace Rampage\Nexus\Ansible\ODM;
+namespace Rampage\Nexus\Ansible\Repository;
 
 use Rampage\Nexus\Entities\Node;
 use Rampage\Nexus\Entities\DeployTarget;
@@ -104,7 +104,7 @@ class NodeRepository implements NodeRepositoryInterface
      */
     public function findAll()
     {
-        return new Hydration\NodeCursor($this->hostRepository->findDeployableHosts());
+        $this->decorated->findAll();
     }
 
     /**
@@ -114,5 +114,14 @@ class NodeRepository implements NodeRepositoryInterface
     public function findOne($id)
     {
         return $this->decorated->findOne($id);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see \Rampage\Nexus\Repository\NodeRepositoryInterface::findByUrl()
+     */
+    public function findByUrl($url)
+    {
+        return $this->decorated->findByUrl($url);
     }
 }

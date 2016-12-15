@@ -20,29 +20,17 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.txt GNU General Public License
  */
 
-namespace Rampage\Nexus\Ansible\ODM\ServiceFactory;
+namespace Rampage\Nexus\Ansible;
 
-use Rampage\Nexus\Ansible\ODM\EventSubscriber;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\DelegatorFactoryInterface;
-
+use Rampage\Nexus\Ansible\Entities\Host;
 
 /**
- * Augments the doctrine odm document manager
+ * Links a Node to an ansible host
  */
-class DocumentManagerDelegator implements DelegatorFactoryInterface
+interface LinkNodeStrategyInterface
 {
     /**
-     * {@inheritDoc}
-     * @see \Zend\ServiceManager\Factory\DelegatorFactoryInterface::__invoke()
+     * @param Host $host
      */
-    public function __invoke(ContainerInterface $container, $name, callable $callback, array $options = null)
-    {
-        /** @var DocumentManager $documentManager */
-        $documentManager = $callback();
-        $documentManager->getEventManager()->addEventSubscriber($container->get(EventSubscriber::class));
-
-        return $documentManager;
-    }
+    public function ensureNodeLink(Host $host);
 }

@@ -24,7 +24,7 @@ namespace Rampage\Nexus\Ansible\Action;
 
 use Rampage\Nexus\Ansible\Entities\Group;
 use Rampage\Nexus\Ansible\Repository\GroupRepositoryInterface;
-use Rampage\Nexus\Action\AbstractRestApi;
+use Rampage\Nexus\Master\Action\AbstractRestApi;
 use Rampage\Nexus\Exception\Http\BadRequestException;
 
 /**

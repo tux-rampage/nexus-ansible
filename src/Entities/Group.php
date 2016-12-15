@@ -23,10 +23,12 @@
 namespace Rampage\Nexus\Ansible\Entities;
 
 use Rampage\Nexus\Entities\Api\ArrayExchangeInterface;
-use Rampage\Nexus\Entities\ArrayCollection;
+
 use Rampage\Nexus\Exception\InvalidArgumentException;
 
 use SplObjectStorage;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\MongoDB\Aggregation\Stage\Group;
 
 
 /**
@@ -138,8 +140,24 @@ class Group implements ArrayExchangeInterface
      */
     public function addChild(Group $group)
     {
-        $this->children[$group->getId()] = $group;
+        if (!$this->hasChild($group)) {
+            $this->children[] = $group;
+        }
+
         return $this;
+    }
+
+    /**
+     * @param Group $group
+     * @return boolean
+     */
+    public function hasChild(Group $group)
+    {
+        $predicate = function(Group $item) use ($group) {
+            return ($group === $item);
+        };
+
+        return $this->children->exists($predicate);
     }
 
     /**
@@ -148,7 +166,7 @@ class Group implements ArrayExchangeInterface
      */
     public function removeChild(Group $group)
     {
-        unset($this->children[$group->getId()]);
+        $this->children->removeElement($group);
         return $this;
     }
 

@@ -23,13 +23,16 @@
 namespace Rampage\Nexus\Ansible\Entities;
 
 use Rampage\Nexus\Entities\Node;
-use Rampage\Nexus\Deployment\NodeInterface;
 use Rampage\Nexus\Exception\LogicException;
 use Rampage\Nexus\Entities\Api\ArrayExchangeInterface;
-use Zend\Stdlib\Parameters;
-use Rampage\Nexus\Entities\ArrayCollection;
 use Rampage\Nexus\Exception\InvalidArgumentException;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Zend\Stdlib\Parameters;
+
+/**
+ * Host entity
+ */
 class Host implements ArrayExchangeInterface
 {
     use VariablesTrait;
@@ -160,7 +163,7 @@ class Host implements ArrayExchangeInterface
             return ($item->getId() == $group->getId());
         };
 
-        return ($this->groups->find($predicate) !== null);
+        return ($this->groups->filter($predicate)->first() !== null);
     }
 
     /**
