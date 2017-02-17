@@ -74,7 +74,7 @@ class NodeRepository implements NodeRepositoryInterface
     public function remove(Node $node)
     {
         if ($this->hostRepository->isNodeAttached($node)) {
-            throw new LogicException('Cannot remove nodes in an ansible repository individually');
+            throw new LogicException('Cannot remove attached nodes in an ansible repository individually');
         }
 
         return $this->decorated->remove($node);

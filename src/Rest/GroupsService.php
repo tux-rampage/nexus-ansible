@@ -20,32 +20,44 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.txt GNU General Public License
  */
 
-namespace Rampage\Nexus\Ansible\Action;
+namespace Rampage\Nexus\Ansible\Rest;
 
 use Rampage\Nexus\Ansible\Entities\Group;
 use Rampage\Nexus\Ansible\Repository\GroupRepositoryInterface;
-use Rampage\Nexus\Master\Action\AbstractRestApi;
+
 use Rampage\Nexus\Exception\Http\BadRequestException;
 
+use Rampage\Nexus\Repository\RestService\GetableTrait;
+use Rampage\Nexus\Repository\RestService\PutableTrait;
+use Rampage\Nexus\Repository\RestService\PostableTrait;
+use Rampage\Nexus\Repository\RestService\DeletableTrait;
+
+
 /**
- * Implements the group rest api
+ * Implements the service contract for groups
  */
-class GroupAction extends AbstractRestApi
+class GroupsService
 {
+    use GetableTrait;
+    use PutableTrait;
+    use PostableTrait;
+    use DeletableTrait;
+
     /**
      * {@inheritDoc}
      * @see \Rampage\Nexus\Action\AbstractRestApi::__construct()
      */
     public function __construct(GroupRepositoryInterface $repository)
     {
-        parent::__construct($repository, new Group(null));
+        $this->repository = $repository;
     }
 
     /**
-     * {@inheritDoc}
-     * @see \Rampage\Nexus\Action\AbstractRestApi::createEntity()
+     * @param array $data
+     * @throws BadRequestException
+     * @return \Rampage\Nexus\Ansible\Entities\Group
      */
-    protected function createEntity(array $data)
+    private function createNewEntity(array $data)
     {
         if (!isset($data['name'])) {
             throw new BadRequestException('Missing group name', BadRequestException::UNPROCESSABLE);
