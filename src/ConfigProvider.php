@@ -23,6 +23,7 @@
 namespace Rampage\Nexus\Ansible;
 
 use Rampage\Nexus\Repository\NodeRepositoryInterface;
+use Rampage\Nexus\Middleware\RestfulServiceMiddleware;
 
 /**
  * Config provider for ansible module
@@ -70,15 +71,15 @@ class ConfigProvider
                     'ansible/hosts' => [
                         'name' => 'ansible/hosts',
                         'path' => '/ansible/hosts[/{id}]',
-                        'middleware' => Action\HostAction::class,
-                        'allow_methods' => [ 'GET', 'PUT', 'POST', 'DELETE' ],
+                        'middleware' => RestfulServiceMiddleware::getMiddlewareServiceName(Rest\HostService::class),
+                        'allow_methods' => [ 'GET', 'PUT', 'POST', 'DELETE', 'OPTIONS' ],
                     ],
 
                     'ansible/groups' => [
                         'name' => 'ansible/groups',
                         'path' => '/ansible/groups[/{id}]',
-                        'middleware' => Action\GroupAction::class,
-                        'allow_methods' => [ 'GET', 'PUT', 'POST', 'DELETE' ],
+                        'middleware' => RestfulServiceMiddleware::getMiddlewareServiceName(Rest\GroupsService::class),
+                        'allow_methods' => [ 'GET', 'PUT', 'POST', 'DELETE', 'OPTIONS' ],
                     ]
                 ]
             ]
@@ -91,6 +92,10 @@ class ConfigProvider
                     Repository\HostRepositoryInterface::class => ODM\HostRepository::class,
                 ]
             ]);
+
+            $config['odm']['mappingDrivers'] = [
+                __NAMESPACE__ . '\Entities' => ODM\MappingDriver::class,
+            ];
         }
 
         return $config;

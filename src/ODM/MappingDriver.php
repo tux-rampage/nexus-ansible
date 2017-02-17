@@ -70,6 +70,4 @@ class MappingDriver extends AbstractArrayDriver
             ],
         ];
     }
-
-
 }
